@@ -17,13 +17,12 @@ export class WeatherChartComponent implements OnInit {
     this.route.params.subscribe(params => {
       const location = params['location'];
       this.weatherService.getForecast(location).subscribe((data: any) => {
-        const temperatures = data.properties.periods.map((period: any) => period.temperature);
-        this.renderChart(temperatures);
+        this.renderChart(data.properties.periods);
       });
     });
   }
 
-  renderChart(temperatures: number[]) {
+  renderChart(periods: any[]) {
     const ctx = document.getElementById('weatherChart') as HTMLCanvasElement;
     if (!ctx) {
       return;
@@ -34,12 +33,15 @@ export class WeatherChartComponent implements OnInit {
       this.chart.destroy();
     }
 
+    const labels = periods.map(period => period.name);
+    const temperatures = periods.map(period => period.temperature);
+
     this.chart = new Chart(ctx.getContext('2d')!, {
       type: 'line',
       data: {
-        labels: temperatures.map((temp, index) => `Day ${index + 1}`),
+        labels: labels,
         datasets: [{
-          label: 'Temperature',
+          label: 'Temperature (F)',
           data: temperatures,
           backgroundColor: 'rgba(255, 99, 132, 0.2)',
           borderColor: 'rgba(255, 99, 132, 1)',
@@ -57,4 +59,5 @@ export class WeatherChartComponent implements OnInit {
       }
     });
   }
+
 }
